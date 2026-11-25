@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Jaro Education — Analytics Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#2b2f6e;--navy-deep:#1a1d4e;--navy-soft:#3b4090;
+      --red:#cc2929;--white:#ffffff;
+    }
+    html,body{font-family:'Nunito Sans',sans-serif;background:var(--navy-deep);min-height:100%;overflow-x:hidden;}
+
+    /* ANIMATED BACKGROUND */
+    .bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;}
+    .bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(59,64,144,.55),transparent);}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);animation:drift 18s ease-in-out infinite alternate;}
+    .orb-1{width:550px;height:550px;background:rgba(59,64,144,.22);top:-120px;left:-180px;animation-delay:0s;}
+    .orb-2{width:420px;height:420px;background:rgba(204,41,41,.1);top:30%;right:-130px;animation-delay:-6s;}
+    .orb-3{width:380px;height:380px;background:rgba(43,47,110,.28);bottom:-80px;left:28%;animation-delay:-12s;}
+    @keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.08)}}
+    .grid-pattern{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:48px 48px;}
+
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+
+    /* NAV */
+    .topnav{display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:92px;border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(14px);background:rgba(26,29,78,.65);position:sticky;top:0;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+    .nav-brand{display:flex;align-items:center;gap:22px;}
+    .nav-logo{height:40px;width:auto;display:block;}
+    .nav-pipe{width:1px;height:32px;background:rgba(255,255,255,.16);}
+    .nav-tag{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);white-space:nowrap;}
+    .nav-tabs{display:flex;align-items:center;gap:4px;}
+    .nav-tab{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.42);text-decoration:none;padding:9px 18px;border-radius:9px;transition:all .18s;white-space:nowrap;}
+    .nav-tab:hover{color:#fff;background:rgba(255,255,255,.06);}
+    .nav-tab.active{color:#fff;background:rgba(255,255,255,.09);}
+    .live-pill{display:flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:6px 16px;}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 7px #22c55e;animation:pulse 2s ease-in-out infinite;flex-shrink:0;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.8)}}
+
+    /* HERO */
+    .hero{padding:68px 56px 52px;text-align:center;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);border-radius:30px;padding:7px 20px;margin-bottom:26px;}
+    .hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--red);}
+    .hero-eyebrow span{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+    .hero-title{font-family:'Libre Baskerville',serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:14px;}
+    .hero-title em{color:#a5adff;font-style:italic;}
+    .hero-desc{font-size:.92rem;color:rgba(255,255,255,.4);max-width:500px;margin:0 auto;line-height:1.78;}
+    .red-rule{width:44px;height:3px;background:var(--red);border-radius:2px;margin:22px auto 0;}
+
+    /* STATS */
+    .stats-bar{display:flex;align-items:center;justify-content:center;gap:52px;padding:26px 56px;border-top:1px solid rgba(255,255,255,.055);border-bottom:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018);flex-wrap:wrap;}
+    .stat-item{text-align:center;}
+    .stat-num{font-size:1.5rem;font-weight:800;color:#fff;line-height:1;}
+    .stat-lbl{font-size:.63rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:5px;}
+
+    /* GRID */
+    .cards-section{flex:1;padding:52px 56px 64px;}
+    .section-label{font-size:.64rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .section-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
+    .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+
+    /* CARD */
+    .card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;transition:transform .3s cubic-bezier(.25,.8,.25,1),box-shadow .3s,border-color .3s;cursor:pointer;display:flex;flex-direction:column;position:relative;}
+    .card:hover{transform:translateY(-7px);border-color:rgba(255,255,255,.18);box-shadow:0 28px 70px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1);}
+
+    /* per-university accent */
+    .card-dpu{--accent:#4f8bff;}
+    .card-bvdu{--accent:#a855f7;}
+    .card-symbiosis{--accent:#f59e0b;}
+    .card-amrita{--accent:#10b981;}
+    .card-amity{--accent:#e85d04;}
+    .card-cu{--accent:#c8102e;}
+    .card-dsu{--accent:#0891b2;}
+    .card-liba{--accent:#7c3aed;}
+    .card-parul{--accent:#16a34a;}
+    .card-muj{--accent:#ea580c;}
+    .card-mgr{--accent:#0d9488;}
+
+    /* LOGO PANEL — white background strip showing the real logo */
+    .card-logo-panel{background:#fff;display:flex;align-items:center;justify-content:center;padding:22px 32px;height:130px;flex-shrink:0;position:relative;overflow:hidden;}
+    .card-logo-panel::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(0,0,0,.07);}
+    /* subtle colored glow behind logo */
+    .card-logo-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(var(--accent-rgb),.07),transparent 70%);pointer-events:none;}
+    .card-dpu .card-logo-panel{--accent-rgb:79,139,255;}
+    .card-bvdu .card-logo-panel{--accent-rgb:168,85,247;}
+    .card-symbiosis .card-logo-panel{--accent-rgb:245,158,11;}
+    .card-amrita .card-logo-panel{--accent-rgb:16,185,129;}
+    .card-logo-panel img{max-height:86px;max-width:100%;width:auto;object-fit:contain;display:block;position:relative;z-index:1;}
+
+    /* CARD CONTENT */
+    .card-content{padding:22px 26px 0;display:flex;align-items:flex-start;gap:12px;}
+    .card-badge{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:3px 10px;display:inline-block;white-space:nowrap;flex-shrink:0;margin-top:3px;}
+    .card-titles{flex:1;}
+    .card-name{font-size:1.05rem;font-weight:800;color:#fff;line-height:1.28;margin-bottom:3px;}
+    .card-sub{font-size:.72rem;color:rgba(255,255,255,.32);font-weight:600;}
+
+    .card-divider{height:1px;background:rgba(255,255,255,.06);margin:18px 26px;}
+
+    .card-body{padding:0 26px 20px;flex:1;}
+    .card-desc{font-size:.8rem;color:rgba(255,255,255,.38);line-height:1.72;margin-bottom:16px;}
+    .card-links{display:flex;gap:8px;flex-wrap:wrap;}
+    .card-link{font-size:.67rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;text-decoration:none;transition:all .18s;}
+    .card-link:hover{color:#fff;border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.06);}
+
+    .card-footer{padding:14px 26px 22px;display:flex;align-items:center;justify-content:space-between;}
+    .card-status{display:flex;align-items:center;gap:7px;font-size:.67rem;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:.04em;}
+    .status-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;}
+    .card-cta{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--accent);border:none;border-radius:9px;padding:9px 20px;text-decoration:none;transition:all .22s;box-shadow:0 4px 18px rgba(0,0,0,.3);}
+    .card-cta:hover{filter:brightness(1.13);transform:translateX(2px);}
+    .cta-arrow{transition:transform .2s;}
+    .card-cta:hover .cta-arrow{transform:translateX(3px);}
+
+    /* LOCATIONS BANNER */
+    .locations-banner{margin-top:36px;background:linear-gradient(120deg,rgba(59,64,144,.4),rgba(204,41,41,.14));border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:36px 40px;display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;position:relative;overflow:hidden;cursor:pointer;transition:border-color .25s,transform .25s;}
+    .locations-banner:hover{border-color:rgba(255,255,255,.22);transform:translateY(-3px);}
+    .locations-banner::before{content:'';position:absolute;top:-60%;right:-8%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%);pointer-events:none;}
+    .locations-banner-left{display:flex;align-items:center;gap:20px;position:relative;z-index:1;}
+    .locations-banner-icon{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+    .locations-banner-title{font-family:'Libre Baskerville',serif;font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:4px;}
+    .locations-banner-sub{font-size:.78rem;color:rgba(255,255,255,.45);}
+    .locations-banner-sub b{color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums;}
+    .locations-banner-cta{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--red);border:none;border-radius:10px;padding:12px 24px;text-decoration:none;transition:all .22s;box-shadow:0 6px 22px rgba(204,41,41,.35);white-space:nowrap;}
+    .locations-banner-cta:hover{filter:brightness(1.1);transform:translateX(2px);}
+
+    /* FOOTER */
+    .footer{padding:22px 56px;border-top:1px solid rgba(255,255,255,.065);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .footer-left{display:flex;align-items:center;gap:16px;}
+    .footer-pipe{width:1px;height:26px;background:rgba(255,255,255,.1);}
+    .footer-copy{font-size:.67rem;color:rgba(255,255,255,.2);}
+    .footer-right{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:4px 12px;}
+
+    @media(max-width:900px){.cards-grid{grid-template-columns:1fr;}.topnav,.hero,.cards-section,.footer,.stats-bar{padding-left:24px;padding-right:24px;}}
+    @media(max-width:480px){.topnav{padding:0 16px;}.nav-tag{display:none;}.stats-bar{gap:24px;}}
+  </style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="grid-pattern"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="page">
+
+  <nav class="topnav">
+    <div class="nav-brand">
+      <img src="/jaro-logo-white.png" alt="Jaro Education" class="nav-logo"/>
+      <div class="nav-pipe"></div>
+      <div class="nav-tabs">
+        <a class="nav-tab active" href="/">Dashboards</a>
+        <a class="nav-tab" href="/feedback.html">All Feedback</a>
+        <a class="nav-tab" href="/locations.html">Locations</a>
+        <a class="nav-tab" href="/referrals.html">Referral Creatives</a>
+      </div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>11 Dashboards Live</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      <span>Jaro Education · Internal Analytics Hub</span>
+    </div>
+    <h1 class="hero-title">University<br/><em>Dashboard Portal</em></h1>
+    <p class="hero-desc">One place to access all university growth dashboards, student feedback, and programme brochures.</p>
+    <div class="red-rule"></div>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">11</div><div class="stat-lbl">Universities</div></div>
+    <div class="stat-item"><div class="stat-num">11</div><div class="stat-lbl">Live Dashboards</div></div>
+    <div class="stat-item"><div class="stat-num">1300+</div><div class="stat-lbl">Student Reviews</div></div>
+    <div class="stat-item"><div class="stat-num">20+</div><div class="stat-lbl">Programmes</div></div>
+  </div>
+
+  <main class="cards-section">
+    <div class="section-label">All University Dashboards</div>
+    <div class="cards-grid">
+
+      <!-- DPU -->
+      <div class="card card-dpu" onclick="window.open('https://dpu-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://backend.jaroeducation.com/wp-content/uploads/2025/03/DPU.png" alt="DPU Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#4f8bff;letter-spacing:-.02em;align-items:center;">DPU</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">DPU</span>
+          <div class="card-titles">
+            <div class="card-name">Dr. D.Y. Patil University</div>
+            <div class="card-sub">Centre for Online Learning · Pune</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track enrolment trends, BDE performance, and programme-wise growth across Online MBA, BBA, and MCA programmes.</p>
+          <div class="card-links">
+            <a href="https://dpu-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://dpu-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://dpu-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- BVDU -->
+      <div class="card card-bvdu" onclick="window.open('https://bvdu-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://backend.jaroeducation.com/wp-content/uploads/2025/03/BVDU.png" alt="BVDU Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#a855f7;letter-spacing:-.02em;align-items:center;">BVDU</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">BVDU</span>
+          <div class="card-titles">
+            <div class="card-name">Bharati Vidyapeeth University</div>
+            <div class="card-sub">Deemed University · Pune</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Monitor student acquisition, feedback ratings, and programme performance metrics for BVDU programmes offered via Jaro.</p>
+          <div class="card-links">
+            <a href="https://bvdu-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://bvdu-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://bvdu-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- SYMBIOSIS -->
+      <div class="card card-symbiosis" onclick="window.open('https://symbiosis-analysis-report.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://www.symbiosis.ac.in/uploads/logo/68fc7723112071761376035.png" alt="Symbiosis Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:1.4rem;font-weight:900;color:#f59e0b;letter-spacing:-.02em;align-items:center;">SYMBIOSIS</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">Symbiosis</span>
+          <div class="card-titles">
+            <div class="card-name">Symbiosis International University</div>
+            <div class="card-sub">School for Online & Digital Learning</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Comprehensive analysis of Symbiosis student journeys, company-wise hiring data, and video testimonials across MBA and MSc programmes.</p>
+          <div class="card-links">
+            <a href="https://symbiosis-analysis-report.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://symbiosis-analysis-report.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://symbiosis-analysis-report.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- AMRITA -->
+      <div class="card card-amrita" onclick="window.open('https://amrita-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://webfiles.amrita.edu/2026/02/amrita-red-logo-new.svg" alt="Amrita Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:1.4rem;font-weight:900;color:#10b981;letter-spacing:-.02em;align-items:center;">AMRITA</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">Amrita</span>
+          <div class="card-titles">
+            <div class="card-name">Amrita Vishwa Vidyapeetham</div>
+            <div class="card-sub">Deemed to be University · Pan India</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Deep-dive into Amrita's student feedback (490+ reviews), domain distribution, and programme brochures for MBA, BCA, BCom and more.</p>
+          <div class="card-links">
+            <a href="https://amrita-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://amrita-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://amrita-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- AMITY -->
+      <div class="card card-amity" onclick="window.open('https://amity-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="/amity-logo.jpg" alt="Amity University Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#e85d04;letter-spacing:-.02em;align-items:center;">AMITY</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">Amity</span>
+          <div class="card-titles">
+            <div class="card-name">Amity University Online</div>
+            <div class="card-sub">Online Programmes · Pan India</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track Amity's enrolment trends, BDE performance, and programme-wise growth. Student feedback and brochures coming soon.</p>
+          <div class="card-links">
+            <a href="https://amity-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://amity-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://amity-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- CHANDIGARH UNIVERSITY -->
+      <div class="card card-cu" onclick="window.open('https://cu-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://backend.jaroeducation.com/wp-content/uploads/2025/03/CU.png" alt="Chandigarh University Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#c8102e;letter-spacing:-.02em;align-items:center;">CU</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">CU</span>
+          <div class="card-titles">
+            <div class="card-name">Chandigarh University</div>
+            <div class="card-sub">Online Programmes · Chandigarh</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track Chandigarh University's enrolment trends, BDE performance, and programme-wise growth. Student feedback and brochures coming soon.</p>
+          <div class="card-links">
+            <a href="https://cu-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://cu-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://cu-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- DAYANANDA SAGAR UNIVERSITY -->
+      <div class="card card-dsu" onclick="window.open('https://dsu-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://backend.jaroeducation.com/wp-content/uploads/2025/03/DSU.png" alt="Dayananda Sagar University Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#0891b2;letter-spacing:-.02em;align-items:center;">DSU</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">DSU</span>
+          <div class="card-titles">
+            <div class="card-name">Dayananda Sagar University</div>
+            <div class="card-sub">Online Programmes · Bengaluru</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track DSU's enrolment trends, BDE performance, and programme-wise growth, with verified student feedback and the Executive MBA brochure.</p>
+          <div class="card-links">
+            <a href="https://dsu-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://dsu-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://dsu-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- LIBA -->
+      <div class="card card-liba" onclick="window.open('https://liba-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://backend.jaroeducation.com/wp-content/uploads/2025/03/LIBA.png" alt="LIBA Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#7c3aed;letter-spacing:-.02em;align-items:center;">LIBA</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">LIBA</span>
+          <div class="card-titles">
+            <div class="card-name">Loyola Institute of Business Administration</div>
+            <div class="card-sub">Online Programmes · Chennai</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track LIBA's enrolment trends, BDE performance, and programme-wise growth. Student feedback and brochures coming soon.</p>
+          <div class="card-links">
+            <a href="https://liba-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://liba-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://liba-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- PARUL UNIVERSITY -->
+      <div class="card card-parul" onclick="window.open('https://parul-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="/parul-logo.png" alt="Parul University Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#16a34a;letter-spacing:-.02em;align-items:center;">PARUL</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">Parul</span>
+          <div class="card-titles">
+            <div class="card-name">Parul University</div>
+            <div class="card-sub">Online Programmes · Vadodara</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track Parul University's enrolment trends, BDE performance, and programme-wise growth. Student feedback and brochures coming soon.</p>
+          <div class="card-links">
+            <a href="https://parul-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://parul-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://parul-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- MUJ -->
+      <div class="card card-muj" onclick="window.open('https://muj-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="https://backend.jaroeducation.com/wp-content/uploads/2025/03/MUJ.png" alt="MUJ Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#ea580c;letter-spacing:-.02em;align-items:center;">MUJ</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">MUJ</span>
+          <div class="card-titles">
+            <div class="card-name">Manipal University Jaipur</div>
+            <div class="card-sub">Online Programmes · Jaipur</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track MUJ's enrolment trends, BDE performance, and programme-wise growth. Student feedback and brochures coming soon.</p>
+          <div class="card-links">
+            <a href="https://muj-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://muj-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://muj-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- DR. MGR -->
+      <div class="card card-mgr" onclick="window.open('https://mgr-growth-pulse.vercel.app','_blank')">
+        <div class="card-logo-panel">
+          <img src="/mgr-logo.png" alt="Dr. MGR Logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;font-size:2rem;font-weight:900;color:#0d9488;letter-spacing:-.02em;align-items:center;">MGR</div>
+        </div>
+        <div class="card-content">
+          <span class="card-badge">Dr. MGR</span>
+          <div class="card-titles">
+            <div class="card-name">Dr. MGR Educational and Research Institute</div>
+            <div class="card-sub">Online Programmes · Chennai</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <p class="card-desc">Track Dr. MGR's enrolment trends, BDE performance, and programme-wise growth. Student feedback and brochures coming soon.</p>
+          <div class="card-links">
+            <a href="https://mgr-growth-pulse.vercel.app/testimonials.html" target="_blank" onclick="event.stopPropagation()" class="card-link">★ Feedback</a>
+            <a href="https://mgr-growth-pulse.vercel.app/brochures.html" target="_blank" onclick="event.stopPropagation()" class="card-link">📄 Brochures</a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><div class="status-dot"></div>Live</div>
+          <a href="https://mgr-growth-pulse.vercel.app" target="_blank" onclick="event.stopPropagation()" class="card-cta">Open Dashboard <span class="cta-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="locations-banner" onclick="window.location.href='/locations.html'">
+      <div class="locations-banner-left">
+        <div class="locations-banner-icon">📍</div>
+        <div>
+          <div class="locations-banner-title">Office Locations</div>
+          <div class="locations-banner-sub"><b>16</b> Branch Offices &amp; Study Centres across <b>14</b> cities — addresses, contact numbers &amp; hours.</div>
+        </div>
+      </div>
+      <a href="/locations.html" class="locations-banner-cta" onclick="event.stopPropagation()">View All Locations →</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <img src="/jaro-logo-white.png" alt="Jaro Education" style="height:28px;width:auto;opacity:.65;"/>
+      <div class="footer-pipe"></div>
+      <span class="footer-copy">© <span id="yr"></span> Jaro Education · Confidential · Internal Use Only</span>
+    </div>
+    <div class="footer-right">Analytics Portal v1.0</div>
+  </footer>
+
+</div>
+<script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
+</body>
+</html>

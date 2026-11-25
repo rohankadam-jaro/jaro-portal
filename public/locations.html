@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Locations — Jaro Education Analytics Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#2b2f6e;--navy-deep:#1a1d4e;--navy-soft:#3b4090;
+    --red:#cc2929;--white:#ffffff;
+  }
+  html,body{font-family:'Nunito Sans',sans-serif;background:var(--navy-deep);min-height:100%;overflow-x:hidden;}
+
+  .bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;}
+  .bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(59,64,144,.55),transparent);}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);animation:drift 18s ease-in-out infinite alternate;}
+  .orb-1{width:550px;height:550px;background:rgba(59,64,144,.22);top:-120px;left:-180px;animation-delay:0s;}
+  .orb-2{width:420px;height:420px;background:rgba(204,41,41,.1);top:30%;right:-130px;animation-delay:-6s;}
+  @keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.08)}}
+  .grid-pattern{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:48px 48px;}
+
+  .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+
+  /* NAV */
+  .topnav{display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:92px;border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(14px);background:rgba(26,29,78,.65);position:sticky;top:0;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+  .nav-brand{display:flex;align-items:center;gap:22px;}
+  .nav-logo{height:40px;width:auto;display:block;}
+  .nav-pipe{width:1px;height:32px;background:rgba(255,255,255,.16);}
+  .nav-tabs{display:flex;align-items:center;gap:4px;}
+  .nav-tab{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.42);text-decoration:none;padding:9px 18px;border-radius:9px;transition:all .18s;}
+  .nav-tab:hover{color:#fff;background:rgba(255,255,255,.06);}
+  .nav-tab.active{color:#fff;background:rgba(255,255,255,.09);}
+  .live-pill{display:flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:6px 16px;white-space:nowrap;}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 7px #22c55e;animation:pulse 2s ease-in-out infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.8)}}
+
+  /* HERO */
+  .hero{padding:56px 56px 40px;}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);border-radius:30px;padding:7px 20px;margin-bottom:22px;}
+  .hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--red);}
+  .hero-eyebrow span{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+  .hero-title{font-family:'Libre Baskerville',serif;font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:12px;text-wrap:balance;}
+  .hero-title em{color:#a5adff;font-style:italic;}
+  .hero-desc{font-size:.92rem;color:rgba(255,255,255,.4);max-width:620px;line-height:1.75;}
+
+  /* STATS STRIP */
+  .stats-bar{display:flex;align-items:center;gap:52px;padding:22px 56px;border-top:1px solid rgba(255,255,255,.055);border-bottom:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018);flex-wrap:wrap;}
+  .stat-item{text-align:left;}
+  .stat-num{font-size:1.4rem;font-weight:800;color:#fff;line-height:1;font-variant-numeric:tabular-nums;}
+  .stat-lbl{font-size:.62rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:5px;}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;align-items:center;gap:10px;padding:28px 56px 0;flex-wrap:wrap;}
+  .filter-label{font-size:.63rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-right:6px;}
+  .filter-chip{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.55);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .18s;}
+  .filter-chip.active{background:var(--red);border-color:var(--red);color:#fff;}
+  .filter-chip:hover:not(.active){border-color:rgba(255,255,255,.28);color:#fff;}
+
+  /* GRID */
+  .locations-section{flex:1;padding:24px 56px 64px;}
+  .locations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;}
+
+  .loc-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px 24px 20px;display:flex;flex-direction:column;gap:14px;transition:transform .25s cubic-bezier(.25,.8,.25,1),border-color .25s,box-shadow .25s;}
+  .loc-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.16);box-shadow:0 20px 50px rgba(0,0,0,.4);}
+
+  .loc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .loc-city-group{display:flex;flex-direction:column;gap:4px;}
+  .loc-city{font-family:'Libre Baskerville',serif;font-size:1.05rem;font-weight:700;color:#fff;}
+  .loc-area{font-size:.72rem;color:rgba(255,255,255,.4);font-weight:600;}
+  .loc-type-pill{flex-shrink:0;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ffb4b4;background:rgba(204,41,41,.14);border:1px solid rgba(204,41,41,.28);border-radius:6px;padding:4px 9px;white-space:nowrap;}
+  .loc-type-pill-office{color:#a5adff;background:rgba(89,98,200,.16);border-color:rgba(165,173,255,.3);}
+
+  .loc-divider{height:1px;background:rgba(255,255,255,.07);}
+
+  .loc-address{font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.6;}
+
+  .loc-meta-row{display:flex;flex-direction:column;gap:8px;}
+  .loc-meta-item{display:flex;align-items:baseline;gap:8px;font-size:.75rem;}
+  .loc-meta-icon{color:rgba(255,255,255,.28);font-size:.68rem;flex-shrink:0;width:14px;}
+  .loc-meta-text{color:rgba(255,255,255,.68);font-variant-numeric:tabular-nums;}
+
+  .loc-footer{display:flex;align-items:center;margin-top:4px;}
+  .loc-cta{display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--navy-soft);border:none;border-radius:8px;padding:8px 16px;text-decoration:none;transition:all .2s;margin-left:auto;}
+  .loc-cta:hover{background:var(--red);}
+
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:rgba(255,255,255,.35);font-size:.85rem;}
+
+  /* FOOTER */
+  .footer{padding:22px 56px;border-top:1px solid rgba(255,255,255,.065);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .footer-left{display:flex;align-items:center;gap:16px;}
+  .footer-pipe{width:1px;height:26px;background:rgba(255,255,255,.1);}
+  .footer-copy{font-size:.67rem;color:rgba(255,255,255,.2);}
+  .footer-right{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:4px 12px;}
+
+  @media(max-width:900px){.topnav,.hero,.stats-bar,.filter-bar,.locations-section,.footer{padding-left:24px;padding-right:24px;}.nav-tabs{display:none;}}
+  @media(max-width:600px){.locations-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="grid-pattern"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<div class="page">
+
+  <nav class="topnav">
+    <div class="nav-brand">
+      <img src="/jaro-logo-white.png" alt="Jaro Education" class="nav-logo"/>
+      <div class="nav-pipe"></div>
+      <div class="nav-tabs">
+        <a class="nav-tab" href="/">Dashboards</a>
+        <a class="nav-tab active" href="/locations.html">Locations</a>
+        <a class="nav-tab" href="/referrals.html">Referral Creatives</a>
+      </div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>16 Centres Live</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      <span>Jaro Education · Office Directory</span>
+    </div>
+    <h1 class="hero-title">Our <em>Branch Offices &amp; Study Centres</em></h1>
+    <p class="hero-desc">Every branch office and study centre across India — address, contact number, and hours, in one place for the sales team.</p>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">16</div><div class="stat-lbl">Locations</div></div>
+    <div class="stat-item"><div class="stat-num">14</div><div class="stat-lbl">Cities</div></div>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Region</span>
+    <span class="filter-chip active" data-filter="region" data-value="all">All Regions</span>
+    <span class="filter-chip" data-filter="region" data-value="west">West</span>
+    <span class="filter-chip" data-filter="region" data-value="north">North</span>
+    <span class="filter-chip" data-filter="region" data-value="south">South</span>
+    <span class="filter-chip" data-filter="region" data-value="east">East</span>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Type</span>
+    <span class="filter-chip active" data-filter="type" data-value="all">All Types</span>
+    <span class="filter-chip" data-filter="type" data-value="Branch & Study Centre">Branch &amp; Study Centre</span>
+    <span class="filter-chip" data-filter="type" data-value="Branch Office">Branch Office</span>
+  </div>
+
+  <main class="locations-section">
+    <div class="locations-grid" id="grid"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <img src="/jaro-logo-white.png" alt="Jaro Education" style="height:30px;width:auto;opacity:.5;"/>
+      <div class="footer-pipe"></div>
+      <span class="footer-copy">© <span id="yr"></span> Jaro Education · Confidential · Internal Use Only</span>
+    </div>
+    <div class="footer-right">Analytics Portal · Locations v1.0</div>
+  </footer>
+
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+const DATA = [
+  {city:"Mumbai", area:"Chembur Head Office", region:"west", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 1101 & 1102, 11th floor, Vikas Centre, Near Golf Club, Dr. C.G. Road, Chembur (East), Mumbai – 400074.", phone:"91-22-25205763", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-mumbai"},
+  {city:"Mumbai", area:"Goregaon 1", region:"west", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 4th Floor, Brijwasi Excellentia, Next to Brijwasi Palace Hall, Sonawala Road, Goregoan (East), Mumbai – 400063.", phone:"91-22-69511000", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-mumbai"},
+  {city:"Mumbai", area:"Goregaon 2", region:"west", type:"Branch Office", address:"Jaro Institute of Technology Management and Research Ltd, 1st Floor, Brijwasi Building, Next to Brijwasi Palace Hall, Sonawala Road, Goregoan (East), Mumbai – 400063.", phone:"91-022-69511000", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-mumbai"},
+  {city:"Mumbai", area:"Thane", region:"west", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 303, 3rd floor, Sambhav IT Park, Rd Number 2, MIDC Colony, Raheja Gardens, Thane West, Thane, Maharashtra 400604", phone:"91-022-69511000", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-mumbai"},
+  {city:"Pune", area:"Agarkar Nagar", region:"west", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 301, Amar Synergy, Sadhu Vaswani Rd, Agarkar Nagar, Pune, Maharashtra - 411001", phone:"91-020-48478198", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-pune"},
+  {city:"Ahmedabad", area:"Ahmedabad 2", region:"west", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 603, 6th floor, ABC-1 (Amarnath Business Centre), Near St. Xavier's Corner, Opp C.G Road, Sardar Patel Nagar Society, Navrangpura, Ahmedabad, Gujarat - 380009", phone:"91-7945037126", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-ahmedabad"},
+  {city:"Hyderabad", area:"Hyderabad", region:"south", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, Aditya Trade Centre, Office no 2B, 1st floor, Satyam Theatre Road, Kumar Basti, Ameerpet, Hyderabad, Telangana - 500018", phone:"91-7208921127", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-hyderabad"},
+  {city:"Chennai", area:"Chennai", region:"south", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 2nd floor, Shyamala Towers, Arcot Road, Saligramam, Chennai – 600093", phone:"91-04447872439", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-chennai"},
+  {city:"Bengaluru", area:"Koramangala", region:"south", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, No. 9, Attic Space Karna, 1st Floor, 1st “C” Main, 1st Block, Koramangala, Bengaluru, Karnataka - 560034.", phone:"91-8040124313", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-bengaluru"},
+  {city:"Kochi", area:"Kochi", region:"south", type:"Branch Office", address:"Jaro Institute of Technology Management and Research Ltd, INQ Innovations, INQ Tower, 1st floor, Opp EMC NH Bypass, Palarivattom, Kochi, Kerala - 682025", phone:"91-0484-4039761", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-kochi"},
+  {city:"Indore", area:"Indore", region:"west", type:"Branch Office", address:"Incuspaze, No. 408, 4th Floor, Apollo Premiere, PU - 4 Vijayanagar Square, Vijayanagar, Indore, Madhya Pradesh - 452010.", phone:"91-8826827773", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-indore"},
+  {city:"Gurugram", area:"Gurugram", region:"north", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, Ground Floor, CLC Tower, Plot no 146, Sector 44, Gurugram, Haryana - 122003", phone:"91-0124-421-5104", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-gurgaon"},
+  {city:"Jaipur", area:"Jaipur", region:"north", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, J-34, Malviya Marg, C-Scheme, Ashok Nagar, Jaipur, Rajasthan – 302001.", phone:"91-141-6661143", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-jaipur"},
+  {city:"Chandigarh", area:"Chandigarh", region:"north", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, The Hive Coworking & Business Centre, Plot 191, 2nd floor, Business & Industrial Park Phase II, Chandigarh - 160002.", phone:"91-9240218482", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-chandigarh"},
+  {city:"Lucknow", area:"Lucknow", region:"north", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, 601a & 601b, Block B, 6th floor, Summit Building, TCG 3/3, Padera – Raebareli Rd, Vibhuti Khand, Gomti Nagar, Lucknow, Uttar Pradesh – 226010.", phone:"91-522-4710882", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-lucknow"},
+  {city:"Kolkata", area:"Kolkata", region:"east", type:"Branch & Study Centre", address:"Jaro Institute of Technology Management and Research Ltd, Millennium City, 12th Floor, DN-62, DN-Block, Salt Lake, Sector V, Kolkata – 700091.", phone:"91-9240218482", timings:"Mon to Sat, 10:00 AM to 7:00 PM", url:"https://www.jaroeducation.com/contact-kolkata"}
+];
+
+const grid = document.getElementById('grid');
+const state = { region: 'all', type: 'all' };
+
+function render() {
+  const filtered = DATA.filter(l =>
+    (state.region === 'all' || l.region === state.region) &&
+    (state.type === 'all' || l.type === state.type)
+  );
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state">No centres found for this filter.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(loc => `
+    <div class="loc-card">
+      <div class="loc-top">
+        <div class="loc-city-group">
+          <div class="loc-city">${loc.city}</div>
+          <div class="loc-area">${loc.area}</div>
+        </div>
+        <span class="loc-type-pill${loc.type === 'Branch Office' ? ' loc-type-pill-office' : ''}">${loc.type}</span>
+      </div>
+      <div class="loc-divider"></div>
+      <div class="loc-address">${loc.address}</div>
+      <div class="loc-meta-row">
+        <div class="loc-meta-item"><span class="loc-meta-icon">☎</span><span class="loc-meta-text">${loc.phone}</span></div>
+        <div class="loc-meta-item"><span class="loc-meta-icon">◷</span><span class="loc-meta-text">${loc.timings}</span></div>
+      </div>
+      <div class="loc-footer">
+        <a class="loc-cta" href="${loc.url}" target="_blank" rel="noreferrer">Contact Page →</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+render();
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const group = chip.dataset.filter;
+    document.querySelectorAll(`.filter-chip[data-filter="${group}"]`).forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    state[group] = chip.dataset.value;
+    render();
+  });
+});
+</script>
+</body>
+</html>

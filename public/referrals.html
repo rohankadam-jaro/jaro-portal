@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Referral Creatives — Jaro Education Analytics Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#2b2f6e;--navy-deep:#1a1d4e;--navy-soft:#3b4090;
+    --red:#cc2929;--white:#ffffff;
+  }
+  html,body{font-family:'Nunito Sans',sans-serif;background:var(--navy-deep);min-height:100%;overflow-x:hidden;}
+
+  .bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;}
+  .bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(59,64,144,.55),transparent);}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);animation:drift 18s ease-in-out infinite alternate;}
+  .orb-1{width:550px;height:550px;background:rgba(59,64,144,.22);top:-120px;left:-180px;animation-delay:0s;}
+  .orb-2{width:420px;height:420px;background:rgba(204,41,41,.1);top:30%;right:-130px;animation-delay:-6s;}
+  @keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.08)}}
+  .grid-pattern{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:48px 48px;}
+
+  .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+
+  /* NAV */
+  .topnav{display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:92px;border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(14px);background:rgba(26,29,78,.65);position:sticky;top:0;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+  .nav-brand{display:flex;align-items:center;gap:22px;}
+  .nav-logo{height:40px;width:auto;display:block;}
+  .nav-pipe{width:1px;height:32px;background:rgba(255,255,255,.16);}
+  .nav-tabs{display:flex;align-items:center;gap:4px;}
+  .nav-tab{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.42);text-decoration:none;padding:9px 18px;border-radius:9px;transition:all .18s;white-space:nowrap;}
+  .nav-tab:hover{color:#fff;background:rgba(255,255,255,.06);}
+  .nav-tab.active{color:#fff;background:rgba(255,255,255,.09);}
+  .live-pill{display:flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:6px 16px;white-space:nowrap;}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 7px #22c55e;animation:pulse 2s ease-in-out infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.8)}}
+
+  /* HERO */
+  .hero{padding:56px 56px 40px;}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);border-radius:30px;padding:7px 20px;margin-bottom:22px;}
+  .hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--red);}
+  .hero-eyebrow span{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+  .hero-title{font-family:'Libre Baskerville',serif;font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:12px;text-wrap:balance;}
+  .hero-title em{color:#a5adff;font-style:italic;}
+  .hero-desc{font-size:.92rem;color:rgba(255,255,255,.4);max-width:640px;line-height:1.75;}
+
+  /* STATS STRIP */
+  .stats-bar{display:flex;align-items:center;gap:52px;padding:22px 56px;border-top:1px solid rgba(255,255,255,.055);border-bottom:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018);flex-wrap:wrap;}
+  .stat-item{text-align:left;}
+  .stat-num{font-size:1.4rem;font-weight:800;color:#fff;line-height:1;font-variant-numeric:tabular-nums;}
+  .stat-lbl{font-size:.62rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:5px;}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;align-items:center;gap:10px;padding:28px 56px 0;flex-wrap:wrap;}
+  .filter-label{font-size:.63rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-right:6px;}
+  .filter-chip{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.55);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 16px;cursor:pointer;transition:all .18s;}
+  .filter-chip.active{background:var(--red);border-color:var(--red);color:#fff;}
+  .filter-chip:hover:not(.active){border-color:rgba(255,255,255,.28);color:#fff;}
+
+  /* GRID */
+  .creatives-section{flex:1;padding:24px 56px 64px;}
+  .creatives-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+
+  .cr-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s cubic-bezier(.25,.8,.25,1),border-color .25s,box-shadow .25s;}
+  .cr-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.16);box-shadow:0 20px 50px rgba(0,0,0,.4);}
+  .cr-thumb-wrap{position:relative;background:#0e1038;aspect-ratio:1/1;overflow:hidden;cursor:pointer;}
+  .cr-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+  .cr-card:hover .cr-thumb-wrap img{transform:scale(1.04);}
+  .cr-uni-pill{position:absolute;top:10px;left:10px;font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#fff;border-radius:6px;padding:4px 9px;backdrop-filter:blur(6px);}
+  .cr-version-pill{position:absolute;top:10px;right:10px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;backdrop-filter:blur(6px);}
+  .cr-version-new{background:rgba(34,197,94,.22);color:#86efac;border:1px solid rgba(34,197,94,.35);}
+  .cr-version-classic{background:rgba(255,255,255,.12);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.18);}
+  .cr-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1;}
+  .cr-program{font-size:.86rem;font-weight:700;color:#fff;line-height:1.3;}
+  .cr-actions{display:flex;gap:8px;margin-top:auto;}
+  .cr-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;border-radius:7px;padding:8px 10px;transition:all .18s;cursor:pointer;border:none;font-family:inherit;}
+  .cr-btn-view{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14);}
+  .cr-btn-view:hover{background:rgba(255,255,255,.14);}
+  .cr-btn-download{background:var(--red);color:#fff;}
+  .cr-btn-download:hover{filter:brightness(1.12);}
+
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:rgba(255,255,255,.35);font-size:.85rem;}
+
+  /* LIGHTBOX */
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(8,9,32,.88);z-index:1000;align-items:center;justify-content:center;padding:32px;backdrop-filter:blur(4px);}
+  .lightbox.open{display:flex;}
+  .lightbox-box{max-width:720px;width:100%;background:rgba(26,29,78,.9);border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;max-height:90vh;}
+  .lightbox-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .lightbox-title{font-size:.85rem;font-weight:700;color:#fff;}
+  .lightbox-close{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+  .lightbox-close:hover{background:rgba(204,41,41,.5);border-color:var(--red);}
+  .lightbox-img-wrap{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#0e1038;padding:12px;}
+  .lightbox-img-wrap img{max-width:100%;max-height:70vh;display:block;border-radius:6px;}
+  .lightbox-footer{display:flex;gap:10px;padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);}
+
+  /* FOOTER */
+  .footer{padding:22px 56px;border-top:1px solid rgba(255,255,255,.065);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .footer-left{display:flex;align-items:center;gap:16px;}
+  .footer-pipe{width:1px;height:26px;background:rgba(255,255,255,.1);}
+  .footer-copy{font-size:.67rem;color:rgba(255,255,255,.2);}
+  .footer-right{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:4px 12px;}
+
+  @media(max-width:900px){.topnav,.hero,.stats-bar,.filter-bar,.creatives-section,.footer{padding-left:24px;padding-right:24px;}.nav-tabs{display:none;}}
+  @media(max-width:600px){.creatives-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="grid-pattern"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<div class="page">
+
+  <nav class="topnav">
+    <div class="nav-brand">
+      <img src="/jaro-logo-white.png" alt="Jaro Education" class="nav-logo"/>
+      <div class="nav-pipe"></div>
+      <div class="nav-tabs">
+        <a class="nav-tab" href="/">Dashboards</a>
+        <a class="nav-tab" href="/locations.html">Locations</a>
+        <a class="nav-tab active" href="/referrals.html">Referral Creatives</a>
+      </div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div><span id="liveCount">30</span> Creatives Live</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      <span>Jaro Education · Refer &amp; Earn</span>
+    </div>
+    <h1 class="hero-title">Referral <em>Creatives</em></h1>
+    <p class="hero-desc">Ready-to-share "Refer &amp; Earn" creatives for every programme, organised by university. View full-size or download the original to share with your network.</p>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="statTotal">30</div><div class="stat-lbl">Creatives</div></div>
+    <div class="stat-item"><div class="stat-num" id="statUnis">7</div><div class="stat-lbl">Universities</div></div>
+  </div>
+
+  <div class="filter-bar" id="uniFilterBar">
+    <span class="filter-label">University</span>
+    <span class="filter-chip active" data-uni="all">All</span>
+  </div>
+
+  <main class="creatives-section">
+    <div class="creatives-grid" id="grid"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <img src="/jaro-logo-white.png" alt="Jaro Education" style="height:30px;width:auto;opacity:.5;"/>
+      <div class="footer-pipe"></div>
+      <span class="footer-copy">© <span id="yr"></span> Jaro Education · Confidential · Internal Use Only</span>
+    </div>
+    <div class="footer-right">Analytics Portal · Referral Creatives v1.0</div>
+  </footer>
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-box">
+    <div class="lightbox-header">
+      <div class="lightbox-title" id="lbTitle"></div>
+      <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    </div>
+    <div class="lightbox-img-wrap">
+      <img id="lbImg" src="" alt=""/>
+    </div>
+    <div class="lightbox-footer">
+      <a class="cr-btn cr-btn-view" id="lbOpenTab" href="#" target="_blank" rel="noreferrer">↗ Open Original</a>
+      <a class="cr-btn cr-btn-download" id="lbDownload" href="#">⬇ Download</a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+const UNIS = [
+  { key: 'dpu',       name: 'DPU',        accent: '#4f8bff' },
+  { key: 'bvdu',      name: 'BVDU',       accent: '#a855f7' },
+  { key: 'symbiosis', name: 'Symbiosis',  accent: '#f59e0b' },
+  { key: 'cu',        name: 'CU',         accent: '#c8102e' },
+  { key: 'dsu',       name: 'DSU',        accent: '#0891b2' },
+  { key: 'liba',      name: 'LIBA',       accent: '#7c3aed' },
+  { key: 'mgr',       name: 'Dr. MGR',    accent: '#0d9488' },
+];
+const ACCENT = Object.fromEntries(UNIS.map(u => [u.key, u.accent]));
+const UNI_NAME = Object.fromEntries(UNIS.map(u => [u.key, u.name]));
+
+// program, uni, new file id, classic file id (null if a version doesn't exist)
+const RAW = [
+  ['cu','MCA','15NwHhGGdhS7G3bfj4GCmXfKARa08Y7sb','1_yegUGMbI-5izElSienJlvD290PEEckj'],
+
+  ['dsu','EMBA','17th6bIexocKkzYb2O1nZ5J79etxKa0kA','1p-tWzbs5uacpFimSi2iIROOO1z_qWTGX'],
+
+  ['bvdu','BBA','1qWI3ATG4mdiLDmoozv6vzyO3XoDHf909','1DAaTvhcv7R5wUEwjBD9C-RFoLwFkCMdo'],
+  ['bvdu','MCA','1ZTV2mVV23z3kmpCcvD77G9TUxHWNfpOY',null],
+  ['bvdu','BCA','17sNoSlqDlZGsUAy8-fgIcvUchImYDm6y','1ZQOXBtO50E9YmsZr8cxWp3wGgIpEGMOs'],
+  ['bvdu','MBA','1bjz4yDN1f7ZaSvPYnQ1Qd3ZJ05ebr24O','1FrhtvEpqpxeHgn_5oC-bJKrxJ7tqwmZ7'],
+
+  ['dpu','BBA','1BpYj5W91YZf4seTudkXBJujvoTwLZ2p5','1NS_UL6rAEgZDmXpnIRNOAIfsOvf8Av5l'],
+  ['dpu','MBA','1nNwZjMQxRPfKISzZQQU2WDwi0YCCkifW','1vAHDEAXfOMIs7wZ38f4PzKz3MWerBc_l'],
+  ['dpu','MCA',null,'1vN0PIMZ0eJRYztFjK5Kx78r2i3U-Xbea'],
+
+  ['mgr','MBA','1YSU_t7nPQqmQVg7jhL_nIWEm-tnQPtt9','1EhKQZcE-o8K71JHjnKPkchMKhzCwyOZI'],
+
+  ['symbiosis','MSc (CA)','1ZdPOrZQkHLAMvgys0iX_qySHnRlI0Mvj','1tmHPNfylST8S4_-cE35pho1HJWq0CkuH'],
+  ['symbiosis','MSc (Data Science)','1a-JzAuKmiWEbYeZvm8GkT2Z6haKeern6','1iVKeAhxggTOzvt11bCGAUre8gey-nYgC'],
+  ['symbiosis','MSc (Economics)','1DDISII5l0cE0ye8vQrIWuxz1T9NhBAt5','1CVLiFQ0vfpIyMQRrqzEkjN1_W3HORS1z'],
+  ['symbiosis','BBA','1g8ZhQXeJBO3X5kNjRQof2jXqKzX8QC_m','1P7koT67Xt_Xmzcpj18wlNcB06qrGYXO5'],
+  ['symbiosis','MBA','13YgOyLSNWVLSlMsJxYMBqFk5BaNBQpWX','1Ox4Hvu_toZSLuSFfzgxWZrvdQnkNy9Jk'],
+
+  ['liba','PGDM','1Z-S6GVIuH1ikUKk7zfNKD-R-ZuZSilm0','1YxyIzHB7N6MBy8MdR_6L_Rc3q0w3AYFU'],
+];
+
+const ITEMS = [];
+RAW.forEach(([uni, program, newId, classicId]) => {
+  if (newId) ITEMS.push({ uni, program, version: 'New', id: newId });
+  if (classicId) ITEMS.push({ uni, program, version: 'Classic', id: classicId });
+});
+
+document.getElementById('statTotal').textContent = ITEMS.length;
+document.getElementById('liveCount').textContent = ITEMS.length;
+document.getElementById('statUnis').textContent = UNIS.length;
+
+function thumbUrl(id) { return `https://drive.google.com/thumbnail?id=${id}&sz=w600`; }
+function fullUrl(id) { return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`; }
+function downloadUrl(id) { return `https://drive.google.com/uc?export=download&id=${id}`; }
+
+const filterBar = document.getElementById('uniFilterBar');
+UNIS.forEach(u => {
+  const chip = document.createElement('span');
+  chip.className = 'filter-chip';
+  chip.dataset.uni = u.key;
+  chip.textContent = u.name;
+  filterBar.appendChild(chip);
+});
+
+const grid = document.getElementById('grid');
+
+function render(uniKey) {
+  const filtered = uniKey === 'all' ? ITEMS : ITEMS.filter(it => it.uni === uniKey);
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state">No creatives found.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(it => {
+    const accent = ACCENT[it.uni];
+    const uniName = UNI_NAME[it.uni];
+    const versionClass = it.version === 'New' ? 'cr-version-new' : 'cr-version-classic';
+    const title = `${uniName} — ${it.program} (${it.version})`.replace(/'/g, "\\'");
+    return `
+    <div class="cr-card">
+      <div class="cr-thumb-wrap" onclick="openLightbox('${it.id}', '${title}')">
+        <img src="${thumbUrl(it.id)}" alt="${uniName} ${it.program} referral creative" loading="lazy"/>
+        <span class="cr-uni-pill" style="background:${accent}">${uniName}</span>
+        <span class="cr-version-pill ${versionClass}">${it.version}</span>
+      </div>
+      <div class="cr-body">
+        <div class="cr-program">${it.program}</div>
+        <div class="cr-actions">
+          <button class="cr-btn cr-btn-view" onclick="openLightbox('${it.id}', '${title}')">👁 View</button>
+          <a class="cr-btn cr-btn-download" href="${downloadUrl(it.id)}" onclick="event.stopPropagation()">⬇ Download</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+render('all');
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    render(chip.dataset.uni);
+  });
+});
+
+function openLightbox(id, title) {
+  document.getElementById('lbTitle').textContent = title;
+  document.getElementById('lbImg').src = fullUrl(id);
+  document.getElementById('lbOpenTab').href = `https://drive.google.com/file/d/${id}/view`;
+  document.getElementById('lbDownload').href = downloadUrl(id);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lbImg').src = '';
+  document.body.style.overflow = '';
+}
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+</body>
+</html>
