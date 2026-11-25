@@ -198,15 +198,6 @@
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">Rating:</span>
-      <button class="filter-btn active" data-rating="all" onclick="setFilter('rating',this)">All</button>
-      <button class="filter-btn" data-rating="5"   onclick="setFilter('rating',this)">★ 5.0</button>
-      <button class="filter-btn" data-rating="4.5" onclick="setFilter('rating',this)">★ 4.5</button>
-      <button class="filter-btn" data-rating="4"   onclick="setFilter('rating',this)">★ 4.0</button>
-      <button class="filter-btn" data-rating="3"   onclick="setFilter('rating',this)">★ 3.0</button>
-    </div>
-    <div class="filter-sep"></div>
-    <div class="filter-group">
       <span class="filter-label">Domain:</span>
       <button class="filter-btn active" data-domain="all"           onclick="setFilter('domain',this)">All</button>
       <button class="filter-btn" data-domain="IT"                   onclick="setFilter('domain',this)">IT</button>
@@ -392,6 +383,7 @@ function onCoSearch(){
   applyFilters();
 }
 
+const UNI_NAMES={"DPU": "Dr. D.Y. Patil University", "BVDU": "Bharati Vidyapeeth University", "Symbiosis": "Symbiosis International University", "Amrita": "Amrita Vishwa Vidyapeetham", "Amity": "Amity University Online", "CU": "Chandigarh University", "DSU": "Dayananda Sagar University", "LIBA": "Loyola Institute of Business Administration", "Parul": "Parul University", "MUJ": "Manipal University Jaipur", "Dr. MGR": "Dr. MGR Educational and Research Institute"};
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function refreshScope(){
@@ -422,7 +414,7 @@ Promise.all([fetch('/feedback.json').then(r=>r.json()), fetch('/videos.json').th
   .then(([data,vids])=>{
     ALL=data; VIDEOS=vids;
     const uc={};ALL.forEach(t=>{uc[t.u]=(uc[t.u]||0)+1;});
-    document.getElementById('uni-chips').innerHTML='<button class="chip active" data-u="all" onclick="setUni(this)">All</button>'+Object.entries(uc).sort((a,b)=>b[1]-a[1]).map(([u,n])=>`<button class="chip" data-u="${esc(u)}" onclick="setUni(this)">${esc(u)} (${n})</button>`).join('');
+    document.getElementById('uni-chips').innerHTML='<button class="chip active" data-u="all" onclick="setUni(this)">All</button>'+Object.entries(uc).sort((a,b)=>b[1]-a[1]).map(([u,n])=>`<button class="chip" data-u="${esc(u)}" onclick="setUni(this)">${esc(UNI_NAMES[u]||u)}</button>`).join('');
     refreshScope();
   })
   .catch(()=>{
